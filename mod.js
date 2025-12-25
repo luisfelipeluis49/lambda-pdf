@@ -1,8 +1,13 @@
-import { add, Greeter } from "./lib/rs_lib.js";
+import { create_hello_pdf } from "./lib/rs_lib.js";
 
-// adds
-console.log(add(1, 1));
+// Example usage
+try {
+  const pdfBytes = create_hello_pdf("World");
+  console.log(`Generated PDF with ${pdfBytes.length} bytes.`);
+  // In a real usage, you might write this to a file or return it in a response
+  // Deno.writeFileSync("output.pdf", pdfBytes);
+} catch (error) {
+  console.error("Error creating PDF:", error);
+}
 
-// greets
-const greeter = new Greeter("world");
-console.log(greeter.greet());
+export { create_hello_pdf };

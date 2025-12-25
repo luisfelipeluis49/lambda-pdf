@@ -1,40 +1,20 @@
+mod creation;
+mod manipulation;
+
 use wasm_bindgen::prelude::*;
 
+// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
+// allocator.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+/// Creates a PDF document with a custom greeting using the Skia engine.
+///
+/// This is the primary function exposed to the JavaScript/TypeScript world.
 #[wasm_bindgen]
-pub fn add(a: i32, b: i32) -> i32 {
-  a + b
-}
-
-#[wasm_bindgen]
-pub struct Greeter {
-  name: String,
-}
-
-#[wasm_bindgen]
-impl Greeter {
-  #[wasm_bindgen(constructor)]
-  pub fn new(name: String) -> Self {
-    Self { name }
-  }
-
-  pub fn greet(&self) -> String {
-    format!("Hello {}!", self.name)
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn it_adds() {
-    let result = add(1, 2);
-    assert_eq!(result, 3);
-  }
-
-  #[test]
-  fn it_greets() {
-    let greeter = Greeter::new("world".into());
-    assert_eq!(greeter.greet(), "Hello world!");
-  }
+pub fn create_pdf(name: &str, font_data: &[u8]) -> Result<Vec<u8>, JsValue> {
+    // Call the internal creation logic and map any Rust error into a JS error.
+    creation::generate_skia_pdf_bytes(name, font_data)
+        .map_err(|e| JsValue::from_str(&e))
 }
