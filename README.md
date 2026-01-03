@@ -1,0 +1,50 @@
+lambda-pdf
+==========
+
+Lightweight, Skia-based PDF generation targeting AWS Lambda, built from Rust to WebAssembly. No headless browsers involved.
+
+Quick start
+-----------
+
+1. Prerequisites
+  
+    - Rust toolchain with `wasm32-unknown-emscripten` target (`rustup target add wasm32-unknown-emscripten`).
+    - Emscripten SDK in PATH (`emcc`, `em++`, `emar`, `emranlib`). On Ubuntu you can install via `sudo apt-get install emscripten`; for best results you can also use the official emsdk and `source /path/to/emsdk_env.sh`.
+    - `wasm-bindgen-cli` 0.2.105 (`cargo install wasm-bindgen-cli --version 0.2.105`) if not already present.
+    - Deno 2.6+.
+    - Ninja and Clang (if Skia needs a source build).
+
+2. Build (inline wasm for Lambda-friendly single-file JS)
+
+    ```sh
+    deno task build
+    # internally runs: deno run -A ./tools/wasmbuild-emscripten/main.ts --inline
+    ```
+
+    Artifacts land in `_wasm/`:
+    - `lambda_pdf.js` / `lambda_pdf.d.ts` (inline wrapper + types)
+    - wasm-bindgen outputs: `lambda_pdf_rs.js`, `lambda_pdf_rs_bg.wasm`, and typings
+
+3. Use in code (Deno)
+
+    ```ts
+    import { instantiate } from "./_wasm/lambda_pdf.js";
+    const wasm = await instantiate();
+    const gen = new wasm.PdfGenerator();
+    const pdfBytes = gen.generate("<html>Hello</html>");
+    await Deno.writeFile("output.pdf", pdfBytes);
+    ```
+
+4. Test
+
+    ```sh
+    deno task test
+    ```
+
+Troubleshooting
+
+---------------
+
+- If Skia tries to build from source, ensure `clang++`, `cmake`, `ninja`, and Python3 are installed; emsdk’s environment variables must be active.
+- Missing `emcc`/`em++`: make sure the emsdk env is sourced or install `emscripten` via apt.
+- wasm-bindgen mismatch: verify the CLI is 0.2.105 to match the crate version.
