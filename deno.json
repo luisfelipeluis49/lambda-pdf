@@ -2,7 +2,7 @@
   "name": "@aprova/lambda-pdf",
   "version": "0.1.0",
   "license": "MIT",
-  "exports": "./lib/mod.ts",
+  "exports": "./mod.ts",
   "tasks": {
     "build": "deno run -A ./tools/wasmbuild-emscripten/main.ts --inline",
     "test": "deno test -A"
